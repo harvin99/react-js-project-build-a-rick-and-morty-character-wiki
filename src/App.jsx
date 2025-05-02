@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap";
+import React, { useState, useEffect } from "react";
+import Search from "./components/Search/Search";
+import Card from "./components/Card/Card";
+import Pagination from "./components/Pagination/Pagination";
+import Filter from "./components/Filter/Filter";
+// import Navbar from "./components/Navbar/Navbar";
 function App() {
-  const [count, setCount] = useState(0)
+  let [pageNumber, setPageNumber] = useState(1);
+  let [fetchedData, updateFetchedData] = useState([]);
+  let [search, setSearch] = useState("");
+  let { info, results } = fetchedData;
+  let api = `https://rickandmortyapi.com/api/character/?page=${pageNumber}&name=${search}`;
+  let [status, updateStatus] = useState("");
+  let [gender, updateGender] = useState("");
+  let [species, updateSpecies] = useState("");
 
+  useEffect(() => {
+    (async function () {
+      let data = await fetch(api).then((res) => res.json());
+      //console.log(data)
+      updateFetchedData(data);
+    })();
+  }, [api]);
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="App">
+      <h1 className="text-center mb-3">Characters</h1>
+      <Search setSearch={setSearch} setPageNumber={setPageNumber} />
+      <div className="container">
+        <div className="row">
+          <Filter
+            pageNumber={pageNumber}
+            status={status}
+            updateStatus={updateStatus}
+            updateGender={updateGender}
+            updateSpecies={updateSpecies}
+            setPageNumber={setPageNumber}
+          />
+          <div className="col-lg-8 col-12">
+            <div className="row">
+              <Card results={results} />
+            </div>
+          </div>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      <Pagination
+        info={info}
+        pageNumber={pageNumber}
+        setPageNumber={setPageNumber}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
